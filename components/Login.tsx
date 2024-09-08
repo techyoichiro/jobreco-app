@@ -64,10 +64,15 @@ export const Login: React.FC = () => {
       } else {
         setError('ログインに失敗しました。入力情報を確認してください。');
       }
-    } catch (error: any) {
-      console.error('ログインエラー:', error);
-      setError('ログインに失敗しました。入力情報を確認してください。');
-    }
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('ログインエラー:', error.message);
+          setError('ログインに失敗しました。入力情報を確認してください。');
+        } else {
+          console.error('予期しないエラー:', error);
+          setError('ログインに失敗しました。入力情報を確認してください。');
+        }
+      }
   };
 
   return (
