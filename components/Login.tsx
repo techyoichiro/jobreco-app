@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface Employee {
   id: number;
@@ -76,49 +77,57 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <Card className="w-[350px]">
-      <CardHeader>
-        <CardTitle>ログイン</CardTitle>
-        <CardDescription>名前を選択しパスワードを入力してください</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form onSubmit={handleLogin}>
-          <div className="grid w-full items-center gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">名前</Label>
-              <Select onValueChange={(value) => setSelectedEmployeeID(value)}>
-                <SelectTrigger id="name">
-                  <SelectValue placeholder="選択してください" />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  {employees.map((employee) => (
-                    <SelectItem key={employee.id} value={employee.id.toString()}>
-                      {employee.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="password">パスワード</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="パスワード"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={() => { setSelectedEmployeeID(null); setPassword(''); }}>
-          クリア
-        </Button>
-        <Button onClick={handleLogin}>ログイン</Button>
-      </CardFooter>
-    </Card>
+    <div>
+        <Card className="w-[350px]">
+            <CardHeader>
+                <CardTitle>ログイン</CardTitle>
+                <CardDescription>名前を選択しパスワードを入力してください</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+                <form onSubmit={handleLogin}>
+                    <div className="grid w-full items-center gap-4">
+                        <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="name">名前</Label>
+                            <Select onValueChange={(value) => setSelectedEmployeeID(value)}>
+                                <SelectTrigger id="name">
+                                <SelectValue placeholder="選択してください" />
+                                </SelectTrigger>
+                                <SelectContent position="popper">
+                                {employees.map((employee) => (
+                                    <SelectItem key={employee.id} value={employee.id.toString()}>
+                                    {employee.name}
+                                    </SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="password">パスワード</Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                placeholder="パスワード"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </form>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+                <Button variant="outline" onClick={() => { setSelectedEmployeeID(null); setPassword(''); }}>
+                クリア
+                </Button>
+                <Button onClick={handleLogin}>ログイン</Button>
+            </CardFooter>
+        </Card>
+        <p className="mt-4 text-center text-sm text-white">
+        アカウントをお持ちでないですか？{' '}
+        <Link href="/signup" className="text-yellow-500 hover:text-blue-500">
+            サインアップ
+        </Link>
+        </p>
+    </div>
   );
 }
