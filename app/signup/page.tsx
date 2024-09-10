@@ -45,12 +45,17 @@ const SignUp: React.FC = () => {
       } else {
         alert('サインアップに失敗しました: ' + response.data.error);
       }
-    } catch (error: any) {
-      console.error('エラーが発生しました:', error);
-      if (error.response && error.response.data) {
-        alert('エラーが発生しました: ' + error.response.data.error);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('エラーが発生しました:', error);
+        if (error.response && error.response.data) {
+          alert('エラーが発生しました: ' + error.response.data.error);
+        } else {
+          alert('エラーが発生しました');
+        }
       } else {
-        alert('エラーが発生しました');
+        console.error('予期しないエラーが発生しました:', error);
+        alert('予期しないエラーが発生しました');
       }
     }
   };

@@ -22,7 +22,6 @@ const storeMap: Record<number, string> = {
 
 const AttendanceScreen: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [status, setStatus] = useState('未出勤');
   const [location, setLocation] = useState('1');
   const [userName, setUserName] = useState<string | null>(null);
   const [statusID, setStatusID] = useState<number>(0);
@@ -41,7 +40,6 @@ const AttendanceScreen: React.FC = () => {
     if (storedStatusID) {
       const id = parseInt(storedStatusID, 10);
       setStatusID(id);
-      setStatus(statusMap[id] || '未出勤');
     }
 
     return () => clearInterval(timer);
@@ -63,7 +61,6 @@ const AttendanceScreen: React.FC = () => {
       if (response.status === 200) {
         const { data } = response;
         setStatusID(data.statusID);
-        setStatus(statusMap[data.statusID] || '未出勤');
         localStorage.setItem('statusID', data.statusID.toString());
       }
     } catch (error) {
