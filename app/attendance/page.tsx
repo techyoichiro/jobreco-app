@@ -53,7 +53,7 @@ const AttendanceScreen: React.FC = () => {
     setErrorMessage(null);
     const storeID = parseInt(location, 10);
     try {
-      const response = await axios.post(`http://localhost:8080/attendance/${Stamp}`, {
+      const response = await axios.post(`https://jobreco-api-njgi6c7muq-an.a.run.app/attendance/${Stamp}`, {
         employee_id: parseInt(localStorage.getItem('empID') || "0", 10),
         store_id: storeID,
       });
@@ -73,7 +73,7 @@ const AttendanceScreen: React.FC = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/summary/init');
+      const response = await axios.get('https://jobreco-api-njgi6c7muq-an.a.run.app/summary/init');
       if (response.status === 200) {
         const employees = response.data;
         localStorage.setItem('employees', JSON.stringify(employees));

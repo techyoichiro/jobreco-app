@@ -42,7 +42,7 @@ const AttendanceRecordList: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/summary/${selectedEmployee}/${selectedYear}/${selectedMonth}`);
+      const response = await fetch(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/${selectedEmployee}/${selectedYear}/${selectedMonth}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -115,6 +115,7 @@ const AttendanceRecordList: React.FC = () => {
           }
         } else {
           const storedEmployees = localStorage.getItem('employees');
+          console.log(storedEmployees);
           if (storedEmployees) {
             const parsedEmployees = JSON.parse(storedEmployees);
             const formattedEmployees = parsedEmployees.map((employee: { id: number, name: string }) => ({
@@ -134,7 +135,7 @@ const AttendanceRecordList: React.FC = () => {
 
   const handleDateClick = async (summaryID: number) => {
     try {
-      const response = await fetch(`http://localhost:8080/summary/edit/${summaryID}`);
+      const response = await fetch(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${summaryID}`);
       if (!response.ok) {
         throw new Error('Failed to fetch summary data');
       }
@@ -189,7 +190,7 @@ const AttendanceRecordList: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="flex space-x-4 mb-6">
-            {roleID === 1 && (
+            {roleID === 2 && ( // roleが管理者の場合
               <Select onValueChange={(value) => setSelectedEmployee(value)}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="従業員を選択" />

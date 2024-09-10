@@ -48,7 +48,7 @@ const EditRecords: React.FC = () => {
       }
 
       try {
-        const response = await axios.get(`http://localhost:8080/summary/edit/${summaryID}`);
+        const response = await axios.get(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${summaryID}`);
         setRecord(response.data);
       } catch (error) {
         console.error('Fetch error:', error);
@@ -65,7 +65,7 @@ const EditRecords: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      await axios.post(`http://localhost:8080/summary/edit/${record.workSegments[0].ID}`, record, {
+      await axios.post(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${record.workSegments[0].ID}`, record, {
         headers: {
           'Content-Type': 'application/json',
         },
