@@ -25,9 +25,7 @@ const SignUp: React.FC = () => {
     }
   
     try {
-      const response = await axios.post(
-        'https://jobreco-api-njgi6c7muq-an.a.run.app/auth/signup',
-        {
+      const response = await axios.post('https://jobreco-api-njgi6c7muq-an.a.run.app/auth/signup',{
           name: name,
           login_id: email,
           password: password
@@ -117,7 +115,7 @@ const SignUp: React.FC = () => {
                 />
               </div>
             </div>
-            <Button onSubmit={handleSignUp}>サインアップ</Button>
+            <Button onClick={handleSignUp}>サインアップ</Button>
           </form>
         </CardContent>
       </Card>

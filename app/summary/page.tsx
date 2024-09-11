@@ -72,7 +72,6 @@ const AttendanceRecordList: React.FC = () => {
       setAttendanceRecords(formattedData);
       setIsSearched(true);
 
-      // ローカルストレージの更新
       localStorage.setItem('selectedEmployee', selectedEmployee);
       localStorage.setItem('selectedYear', selectedYear);
       localStorage.setItem('selectedMonth', selectedMonth);
@@ -89,49 +88,60 @@ const AttendanceRecordList: React.FC = () => {
       const currentYear = now.getFullYear().toString();
       const currentMonth = (now.getMonth() + 1).toString();
 
-      // ローカルストレージから値を取得（初回のみ）
       const storedEmployee = localStorage.getItem('selectedEmployee') || '';
       const storedYear = localStorage.getItem('selectedYear') || currentYear;
       const storedMonth = localStorage.getItem('selectedMonth') || currentMonth;
-      const storedIsSearched = localStorage.getItem('isSearched') === 'true';
       const storedAttendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+      const storedRoleID = localStorage.getItem('roleID');
 
       setSelectedEmployee(storedEmployee);
       setSelectedYear(storedYear);
       setSelectedMonth(storedMonth);
-      setIsSearched(storedIsSearched);
       setAttendanceRecords(storedAttendanceRecords);
 
-      // 役割ID取得と従業員情報の設定
-      const storedRoleID = localStorage.getItem('roleID');
       if (storedRoleID) {
         const roleID = Number(storedRoleID);
         setRoleID(roleID);
 
-        if (roleID === 2) {
+        if (roleID === 1) {
           const storedEmployeeID = localStorage.getItem('empID');
           if (storedEmployeeID) {
             setSelectedEmployee(storedEmployeeID);
           }
         } else {
-          const storedEmployees = localStorage.getItem('employees');
-          console.log(storedEmployees);
-          if (storedEmployees) {
-            const parsedEmployees = JSON.parse(storedEmployees);
-            const formattedEmployees = parsedEmployees.map((employee: { id: number, name: string }) => ({
-              value: employee.id.toString(),
-              label: employee.name,
-            }));
-            setEmployees(formattedEmployees);
-          }
+          fetchEmployees();
         }
       }
 
       setInitialLoad(false);
-    } else if (isSearched) {
+    }
+  }, [initialLoad]);
+
+  const fetchEmployees = async () => {
+    try {
+      const response = await fetch('https://jobreco-api-njgi6c7muq-an.a.run.app/summary/init');
+      const data = await response.json();
+      const formattedEmployees = data.map((employee: { id: number, name: string }) => ({
+        value: employee.id.toString(),
+        label: employee.name,
+      }));
+      setEmployees(formattedEmployees);
+    } catch (error) {
+      console.error('従業員情報の取得に失敗しました:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (isSearched) {
       handleSearch();
     }
-  }, [handleSearch, initialLoad, isSearched]);
+  }, [isSearched, handleSearch]);
+
+  const handleSearchClick = () => {
+    if (selectedEmployee && selectedYear && selectedMonth) {
+      setIsSearched(true);
+    }
+  };
 
   const handleDateClick = async (summaryID: number) => {
     try {
@@ -140,7 +150,6 @@ const AttendanceRecordList: React.FC = () => {
         throw new Error('Failed to fetch summary data');
       }
       localStorage.setItem('editSummaryID', summaryID.toString());
-      
       router.push(`/summary/edit`);
     } catch (error) {
       console.error('Fetch error:', error);
@@ -178,7 +187,7 @@ const AttendanceRecordList: React.FC = () => {
     const hourlyPay = attendanceRecords.length > 0 ? attendanceRecords[0].HourlyPay : 0;
     const regularPay = regularWorkTime * hourlyPay;
     const overtimePay = totalOvertime * hourlyPay * 1.25;
-    const totalFee = parseInt((regularPay + overtimePay).toFixed(2))
+    const totalFee = parseInt((regularPay + overtimePay).toFixed(2));
     return `予定支給額：${totalFee}円`;
   };
 
@@ -190,7 +199,7 @@ const AttendanceRecordList: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="flex space-x-4 mb-6">
-            {roleID === 2 && ( // roleが管理者の場合
+            {roleID === 2 && (
               <Select onValueChange={(value) => setSelectedEmployee(value)}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="従業員を選択" />

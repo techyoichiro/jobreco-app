@@ -7,7 +7,7 @@ export default function Header() {
     <header className="bg-background border-b shadow-sm sticky top-0 z-50">
       <div className="container flex items-center justify-between h-16 px-4 md:px-6">
         <div className="flex items-center gap-4">
-          <Link href="#" className="flex items-center gap-2" prefetch={false}>
+          <Link href="/" className="flex items-center gap-2" prefetch={false}>
             <CalendarIcon className="w-6 h-6 text-primary" />
             <span className="font-bold text-lg">勤怠管理 for Até/我家</span>
           </Link>
