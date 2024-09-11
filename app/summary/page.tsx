@@ -137,12 +137,6 @@ const AttendanceRecordList: React.FC = () => {
     }
   }, [isSearched, handleSearch]);
 
-  const handleSearchClick = () => {
-    if (selectedEmployee && selectedYear && selectedMonth) {
-      setIsSearched(true);
-    }
-  };
-
   const handleDateClick = async (summaryID: number) => {
     try {
       const response = await fetch(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${summaryID}`);
