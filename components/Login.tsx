@@ -124,7 +124,7 @@ export const Login: React.FC = () => {
         </Card>
         <p className="mt-4 text-center text-sm text-white">
         アカウントをお持ちでないですか？{' '}
-        <Link href="/signup" className="text-yellow-500 hover:text-blue-500">
+        <Link href="/signup" className="text-yellow-500 hover:text-blue-500 underline">
             サインアップ
         </Link>
         </p>
