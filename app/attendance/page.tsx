@@ -13,11 +13,19 @@ const statusMap: Record<number, string> = {
   1: '勤務中',
   2: '外出中',
   3: '退勤済み',
+  4: '勤務中',
 };
 
 const storeMap: Record<number, string> = {
   1: '我家',
   2: 'Ate',
+};
+
+const stampMap: Record<string, string> = {
+  'clockin': 'に出勤しますか？',
+  'clockout': 'から退勤しますか？',
+  'goout': 'から外出しますか？',
+  'return': 'に戻りますか？',
 };
 
 const AttendanceScreen: React.FC = () => {
@@ -52,6 +60,13 @@ const AttendanceScreen: React.FC = () => {
   const handleStatusChange = async (Stamp: string) => {
     setErrorMessage(null);
     const storeID = parseInt(location, 10);
+    const storeName = storeMap[storeID]; // 店舗名を取得
+    const stampValue = stampMap[Stamp]
+    const isConfirmed = window.confirm(`${storeName}${stampValue}`);
+
+    if (!isConfirmed) {
+      return;
+    }
     try {
       const response = await axios.post(`https://jobreco-api-njgi6c7muq-an.a.run.app/attendance/${Stamp}`, {
         employee_id: parseInt(localStorage.getItem('empID') || "0", 10),
@@ -129,7 +144,7 @@ const AttendanceScreen: React.FC = () => {
             <Button
               onClick={() => handleStatusChange('clockout')}
               variant="default"
-              disabled={statusID !== 1}
+              disabled={statusID !== 1 && statusID !== 4}
             >
               退勤
             </Button>

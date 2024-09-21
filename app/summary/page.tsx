@@ -16,10 +16,13 @@ interface BreakRecordResponse {
 interface AttendanceRecord {
   ID: number;
   WorkDate: string;
-  StartTime: string;
-  EndTime: string | null;
+  StartTime1: string;
+  EndTime1: string | null;
+  StartTime2: string | null;
+  EndTime2: string | null;
+  BreakStart: string | null;
+  BreakEnd: string | null;
   TotalWorkTime: number;
-  BreakRecords: BreakRecordResponse[] | null;
   Overtime: number;
   Remarks: string;
   HourlyPay: number;
@@ -55,15 +58,13 @@ const AttendanceRecordList: React.FC = () => {
       const formattedData = data.map(record => ({
         ID: record.ID,
         WorkDate: record.WorkDate,
-        StartTime: record.StartTime,
-        EndTime: record.EndTime ? record.EndTime : '-',
+        StartTime1: record.StartTime1,
+        EndTime1: record.EndTime1 ? record.EndTime1 : '-',
+        StartTime2: record.StartTime2 ? record.StartTime2 : '-',
+        EndTime2: record.EndTime2 ? record.EndTime2 : '-',
+        BreakStart: record.BreakStart ? record.BreakStart : '-',
+        BreakEnd: record.BreakEnd ? record.BreakEnd : '-',
         TotalWorkTime: record.TotalWorkTime,
-        BreakRecords: record.BreakRecords
-          ? record.BreakRecords.map(breakRecord => ({
-              BreakStart: breakRecord.BreakStart ? breakRecord.BreakStart : '-',
-              BreakEnd: breakRecord.BreakEnd ? breakRecord.BreakEnd : '-',
-            }))
-          : [],
         Overtime: record.Overtime,
         Remarks: record.Remarks,
         HourlyPay: record.HourlyPay,
@@ -137,13 +138,13 @@ const AttendanceRecordList: React.FC = () => {
     }
   }, [isSearched, handleSearch]);
 
-  const handleDateClick = async (summaryID: number) => {
+  const handleDateClick = async (attendanceID: number) => {
     try {
-      const response = await fetch(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${summaryID}`);
+      const response = await fetch(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${attendanceID}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch summary data');
+        throw new Error('勤怠記録の取得に失敗しました');
       }
-      localStorage.setItem('editSummaryID', summaryID.toString());
+      localStorage.setItem('editAttendanceID', attendanceID.toString());
       router.push(`/summary/edit`);
     } catch (error) {
       console.error('Fetch error:', error);
@@ -155,7 +156,7 @@ const AttendanceRecordList: React.FC = () => {
       '1': '我家',
       '2': 'Ate',
     };
-  
+
     return remarks
       .split(', ')
       .map((remark) => {
@@ -183,6 +184,10 @@ const AttendanceRecordList: React.FC = () => {
     const overtimePay = totalOvertime * hourlyPay * 1.25;
     const totalFee = parseInt((regularPay + overtimePay).toFixed(2));
     return `予定支給額：${totalFee}円`;
+  };
+
+  const formatEndTime = (endTime1: string | null, endTime2: string | null) => {
+    return endTime2 && endTime2 !== '-' ? endTime2 : endTime1 || '-';
   };
 
   return (
@@ -213,29 +218,20 @@ const AttendanceRecordList: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 {['2023', '2024', '2025'].map((year) => (
-                  <SelectItem key={year} value={year}>
-                    {year}年
-                  </SelectItem>
-                ))}
+                  <SelectItem key={year} value={year}> {year}年 </SelectItem>))}
               </SelectContent>
             </Select>
             <Select onValueChange={(value) => setSelectedMonth(value)}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="月を選択" />
+              <SelectTrigger className="w-[120px]"> <SelectValue placeholder="月を選択" />
               </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                  <SelectItem key={month} value={month.toString()}>
-                    {month}月
-                  </SelectItem>
-                ))}
+              <SelectContent>{Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                <SelectItem key={month} value={month.toString()}> {month}月 </SelectItem>))}
               </SelectContent>
             </Select>
             <Button onClick={handleSearch} variant="default">
               検索
             </Button>
           </div>
-
           {isSearched && attendanceRecords.length > 0 && (
             <Table>
               <TableHeader>
@@ -258,22 +254,10 @@ const AttendanceRecordList: React.FC = () => {
                         {record.WorkDate}
                       </Button>
                     </TableCell>
-                    <TableCell>{record.StartTime}</TableCell>
-                    <TableCell>
-                      {record.BreakRecords && record.BreakRecords.length > 0
-                        ? record.BreakRecords.map((br, i) => (
-                          <div key={i}>{br.BreakStart}</div>
-                        ))
-                        : '-'}
-                    </TableCell>
-                    <TableCell>
-                      {record.BreakRecords && record.BreakRecords.length > 0
-                        ? record.BreakRecords.map((br, i) => (
-                          <div key={i}>{br.BreakEnd}</div>
-                        ))
-                        : '-'}
-                    </TableCell>
-                    <TableCell>{record.EndTime}</TableCell>
+                    <TableCell>{record.StartTime1}</TableCell>
+                    <TableCell>{record.BreakStart}</TableCell>
+                    <TableCell>{record.BreakEnd}</TableCell>
+                    <TableCell>{formatEndTime(record.EndTime1, record.EndTime2)}</TableCell>
                     <TableCell>{record.TotalWorkTime}</TableCell>
                     <TableCell>
                       {record.Overtime !== undefined && record.Overtime !== null && record.Overtime !== 0

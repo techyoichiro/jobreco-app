@@ -9,24 +9,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-interface BreakRecord {
-  ID: number;
-  WorkDate: string;
-  BreakStart: string;
-  BreakEnd: string;
-}
-
-interface WorkSegment {
-  ID: number;
-  WorkDate: string;
-  StoreID: number;
-  StartTime: string;
-  EndTime: string;
-}
-
 interface AttendanceRecord {
-  workSegments: WorkSegment[];
-  breakRecord: BreakRecord;
+  ID: number;
+  WorkDate: string;
+  StartTime1: string;
+  EndTime1: string;
+  StartTime2: string | null;
+  EndTime2: string | null;
+  BreakStart: string | null;
+  BreakEnd: string | null;
+  StoreID1: number;
+  StoreID2: number | null;
+  Remarks: string;
+  TotalWorkTime: number;
+  Overtime: number;
+  HourlyPay: number;
 }
 
 const storeMap: Record<number, string> = {
@@ -40,16 +37,16 @@ const EditRecords: React.FC = () => {
 
   useEffect(() => {
     const fetchRecord = async () => {
-      const summaryID = localStorage.getItem('editSummaryID');
-      if (!summaryID) {
+      const attendanceID = localStorage.getItem('editAttendanceID');
+      if (!attendanceID) {
         alert('No summary ID found');
         router.push('/summary');
         return;
       }
 
       try {
-        const response = await axios.get(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${summaryID}`);
-        setRecord(response.data);
+        const response = await axios.get(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${attendanceID}`);
+        setRecord(response.data.attendance);
       } catch (error) {
         console.error('Fetch error:', error);
         alert('Failed to fetch record data');
@@ -64,18 +61,24 @@ const EditRecords: React.FC = () => {
   }
 
   const handleSave = async () => {
+    const isConfirmed = window.confirm('打刻を修正してもよろしいですか？');
+
+    if (!isConfirmed) {
+      return;
+    }
+
     try {
-      await axios.post(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${record.workSegments[0].ID}`, record, {
+      await axios.post(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${record.ID}`, record, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      alert('Record updated successfully');
+      alert('打刻修正完了！');
       router.push('/summary');
     } catch (error) {
       console.error('Update error:', error);
-      alert('Failed to update record');
+      alert('修正に失敗しました。');
     }
   };
 
@@ -86,29 +89,177 @@ const EditRecords: React.FC = () => {
           <CardTitle className="text-2xl font-bold text-gray-800">打刻修正</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>日付</TableHead>
-                <TableHead>店舗</TableHead>
-                <TableHead>勤務開始</TableHead>
-                <TableHead>勤務終了</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {record.workSegments.map((segment) => (
-                <TableRow key={segment.ID}>
-                  <TableCell>{segment.WorkDate}</TableCell>
+          {record.StartTime2 ? (
+            <>
+              {/* 1段目 */}
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>日付</TableHead>
+                    <TableHead>店舗</TableHead>
+                    <TableHead>勤務開始</TableHead>
+                    <TableHead>勤務終了</TableHead>
+                    <TableHead>休憩開始</TableHead>
+                    <TableHead>休憩終了</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>{record.WorkDate}</TableCell>
+                    <TableCell>
+                      <Select
+                        value={String(record.StoreID1)}
+                        onValueChange={(value) => {
+                          setRecord({
+                            ...record,
+                            StoreID1: Number(value),
+                          });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="店舗を選択" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(storeMap).map(([key, value]) => (
+                            <SelectItem key={key} value={key}>{value}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="time"
+                        value={record.StartTime1}
+                        onChange={(e) => {
+                          setRecord({
+                            ...record,
+                            StartTime1: e.target.value,
+                          });
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="time"
+                        value={record.EndTime1}
+                        onChange={(e) => {
+                          setRecord({
+                            ...record,
+                            EndTime1: e.target.value,
+                          });
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="time"
+                        value={record.BreakStart || ''}
+                        onChange={(e) => {
+                          setRecord({
+                            ...record,
+                            BreakStart: e.target.value || null,
+                          });
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="time"
+                        value={record.BreakEnd || ''}
+                        onChange={(e) => {
+                          setRecord({
+                            ...record,
+                            BreakEnd: e.target.value || null,
+                          });
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+
+              {/* 2段目 */}
+              <Table className="mt-6">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>店舗</TableHead>
+                    <TableHead>勤務開始</TableHead>
+                    <TableHead>勤務終了</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>
+                      <Select
+                        value={record.StoreID2 ? String(record.StoreID2) : ''}
+                        onValueChange={(value) => {
+                          setRecord({
+                            ...record,
+                            StoreID2: value ? Number(value) : null,
+                          });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="店舗を選択" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(storeMap).map(([key, value]) => (
+                            <SelectItem key={key} value={key}>{value}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="time"
+                        value={record.StartTime2 || ''}
+                        onChange={(e) => {
+                          setRecord({
+                            ...record,
+                            StartTime2: e.target.value || null,
+                          });
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="time"
+                        value={record.EndTime2 || ''}
+                        onChange={(e) => {
+                          setRecord({
+                            ...record,
+                            EndTime2: e.target.value || null,
+                          });
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>日付</TableHead>
+                  <TableHead>店舗1</TableHead>
+                  <TableHead>勤務開始1</TableHead>
+                  <TableHead>勤務終了1</TableHead>
+                  <TableHead>休憩開始</TableHead>
+                  <TableHead>休憩終了</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>{record.WorkDate}</TableCell>
                   <TableCell>
                     <Select
-                      value={String(segment.StoreID)}
+                      value={String(record.StoreID1)}
                       onValueChange={(value) => {
-                        const newSegments = [...record.workSegments];
-                        const index = newSegments.findIndex(s => s.ID === segment.ID);
-                        if (index > -1) {
-                          newSegments[index].StoreID = Number(value);
-                          setRecord({ ...record, workSegments: newSegments });
-                        }
+                        setRecord({
+                          ...record,
+                          StoreID1: Number(value),
+                        });
                       }}
                     >
                       <SelectTrigger>
@@ -124,59 +275,11 @@ const EditRecords: React.FC = () => {
                   <TableCell>
                     <Input
                       type="time"
-                      value={segment.StartTime}
-                      onChange={(e) => {
-                        const newSegments = [...record.workSegments];
-                        const index = newSegments.findIndex(s => s.ID === segment.ID);
-                        if (index > -1) {
-                          newSegments[index].StartTime = e.target.value;
-                          setRecord({ ...record, workSegments: newSegments });
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      type="time"
-                      value={segment.EndTime}
-                      onChange={(e) => {
-                        const newSegments = [...record.workSegments];
-                        const index = newSegments.findIndex(s => s.ID === segment.ID);
-                        if (index > -1) {
-                          newSegments[index].EndTime = e.target.value;
-                          setRecord({ ...record, workSegments: newSegments });
-                        }
-                      }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-
-          {record.breakRecord && (
-            <Table className="mt-6">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>日付</TableHead>
-                  <TableHead>休憩開始</TableHead>
-                  <TableHead>休憩終了</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell>{record.breakRecord.WorkDate}</TableCell>
-                  <TableCell>
-                    <Input
-                      type="time"
-                      value={record.breakRecord.BreakStart}
+                      value={record.StartTime1}
                       onChange={(e) => {
                         setRecord({
                           ...record,
-                          breakRecord: {
-                            ...record.breakRecord,
-                            BreakStart: e.target.value,
-                          }
+                          StartTime1: e.target.value,
                         });
                       }}
                     />
@@ -184,40 +287,62 @@ const EditRecords: React.FC = () => {
                   <TableCell>
                     <Input
                       type="time"
-                      value={record.breakRecord.BreakEnd}
+                      value={record.EndTime1}
                       onChange={(e) => {
                         setRecord({
                           ...record,
-                          breakRecord: {
-                            ...record.breakRecord,
-                            BreakEnd: e.target.value,
-                          }
+                          EndTime1: e.target.value,
                         });
                       }}
                     />
                   </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button
-            onClick={() => router.back()}
-            variant="outline"
-          >
-            キャンセル
-          </Button>
-          <Button
-            onClick={handleSave}
-            variant="default"
-          >
-            保存
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
-  );
-};
-
-export default EditRecords;
+                  <TableCell>
+                    <Input
+                      type="time"
+                      value={record.BreakStart || ''}
+                      onChange={(e) => {
+                        setRecord({
+                          ...record,
+                          BreakStart: e.target.value || null,
+                        });
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="time"
+                      value={record.BreakEnd || ''}
+                        onChange={(e) => {
+                          setRecord({
+                            ...record,
+                            BreakEnd: e.target.value || null,
+                          });
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button
+              onClick={() => router.back()}
+              variant="outline"
+            >
+              キャンセル
+            </Button>
+            <Button
+              onClick={handleSave}
+              variant="default"
+            >
+              保存
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  };
+  
+  export default EditRecords;
+  
