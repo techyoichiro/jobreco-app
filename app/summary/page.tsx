@@ -8,11 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-interface BreakRecordResponse {
-  BreakStart: string;
-  BreakEnd: string | null;
-}
-
 interface AttendanceRecord {
   ID: number;
   WorkDate: string;
