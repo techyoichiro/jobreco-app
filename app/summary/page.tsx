@@ -246,9 +246,13 @@ const AttendanceRecordList: React.FC = () => {
                 {attendanceRecords.map((record, index) => (
                   <TableRow key={index}>
                     <TableCell>
-                      <Button variant="link" onClick={() => handleDateClick(record.ID)}>
-                        {record.WorkDate}
-                      </Button>
+                      {roleID === 2 ? (
+                        <Button variant="link" onClick={() => handleDateClick(record.ID)}>
+                          {record.WorkDate}
+                        </Button>
+                      ) : (
+                        <span>{record.WorkDate}</span>
+                      )}
                     </TableCell>
                     <TableCell>{record.StartTime1}</TableCell>
                     <TableCell>{record.BreakStart}</TableCell>
