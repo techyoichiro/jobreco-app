@@ -49,6 +49,23 @@ mainブランチにマージされることでvercelにデプロイされる
 店舗を間違えて打刻しないようにポップアップを出すことや、打刻するボタンの活性制御などを必要に応じてつけている。
 また権限に応じて画面側で制御をかけることで打刻の修正や勤怠記録の確認機能に制限をかけている。
 
+## 動作画面
+| ログイン画面  | サインアップ画面 |
+| --------------------- | ---------- |
+| <img src="https://github.com/user-attachments/assets/c9b1dedc-97ed-424e-963c-ff0e7ee8b66b"> | <img src="https://github.com/user-attachments/assets/16c3e357-3d67-409d-8ef2-7163be95e029"> |
+
+| 打刻画面  | 勤怠記録一覧画面(検索時) |
+| --------------------- | ---------- |
+| <img src="https://github.com/user-attachments/assets/56ac310c-9b55-4da5-9b49-74225c1173a7"> | <img src="https://github.com/user-attachments/assets/db536c4c-bf70-4908-abeb-5fc36b45b68f"> |
+
+| 打刻修正画面  | 設定画面※今後追加予定 |
+| --------------------- | ---------- |
+| <img src="https://github.com/user-attachments/assets/3aacfbf0-ab64-4dbb-b939-f79fce169d31"> | 今後実装予定 |
+
+| 勤怠記録一覧画面(管理者)  | 勤怠記録一覧画面(従業員) |
+| --------------------- | ---------- |
+| <img src="https://github.com/user-attachments/assets/e9df4115-7d82-43e2-9215-8faf3f2e2e54"> | <img src="https://github.com/user-attachments/assets/d8b50a1e-e3e4-423d-8037-d8eff0026ccc"> |
+
 ## 環境
 
 <!-- 言語、フレームワーク、ミドルウェア、インフラの一覧とバージョンを記載 -->
