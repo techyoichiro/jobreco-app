@@ -17,7 +17,7 @@ interface AttendanceRecord {
   EndTime2: string | null;
   BreakStart: string | null;
   BreakEnd: string | null;
-  TotalWorkTime: number;
+  TotalWorkTime: string;
   Overtime: number;
   Remarks: string;
   HourlyPay: number;
@@ -50,29 +50,26 @@ const AttendanceRecordList: React.FC = () => {
         throw new Error('No data received');
       }
 
-      const formattedData = data.map(record => ({
-        ID: record.ID,
-        WorkDate: record.WorkDate,
-        StartTime1: record.StartTime1,
-        EndTime1: record.EndTime1 ? record.EndTime1 : '-',
-        StartTime2: record.StartTime2 ? record.StartTime2 : '-',
-        EndTime2: record.EndTime2 ? record.EndTime2 : '-',
-        BreakStart: record.BreakStart ? record.BreakStart : '-',
-        BreakEnd: record.BreakEnd ? record.BreakEnd : '-',
-        TotalWorkTime: record.TotalWorkTime,
-        Overtime: record.Overtime,
-        Remarks: record.Remarks,
-        HourlyPay: record.HourlyPay,
-      }));
+      // 日付順にソート
+      const sortedData = data
+        .map(record => ({
+          ...record,
+          WorkDate: record.WorkDate,
+          EndTime1: record.EndTime1 ? record.EndTime1 : '-',
+          EndTime2: record.EndTime2 ? record.EndTime2 : '-',
+          BreakStart: record.BreakStart ? record.BreakStart : '-',
+          BreakEnd: record.BreakEnd ? record.BreakEnd : '-',
+        }))
+        .sort((a, b) => new Date(a.WorkDate).getTime() - new Date(b.WorkDate).getTime());
 
-      setAttendanceRecords(formattedData);
+      setAttendanceRecords(sortedData);
       setIsSearched(true);
 
       localStorage.setItem('selectedEmployee', selectedEmployee);
       localStorage.setItem('selectedYear', selectedYear);
       localStorage.setItem('selectedMonth', selectedMonth);
       localStorage.setItem('isSearched', 'true');
-      localStorage.setItem('attendanceRecords', JSON.stringify(formattedData));
+      localStorage.setItem('attendanceRecords', JSON.stringify(sortedData));
     } catch (error) {
       console.error('Fetch error:', error);
     }
@@ -163,7 +160,11 @@ const AttendanceRecordList: React.FC = () => {
   };
 
   const getTotalWorkTime = () => {
-    return attendanceRecords.reduce((total, record) => total + record.TotalWorkTime, 0).toFixed(2);
+    return attendanceRecords.reduce((total, record) => {
+      // record.TotalWorkTimeが文字列のときは、数値に変換
+      const workTime = parseFloat(record.TotalWorkTime) || 0;  // 変換できない場合は0を使う
+      return total + workTime;
+    }, 0).toFixed(2);
   };
 
   const getTotalOvertime = () => {
