@@ -43,6 +43,7 @@ mainブランチにマージされることでvercelにデプロイされる
 フロントについてはTypeScript+Next.jsで構築した。
 モダンな技術について学んでおきたかったことと、機能的にSEO対策などは必要ないがVercelにデプロイすることを想定していたため相性のいいNext.jsで構築した。
 また課題解決とともにモダンなフロントエンド技術の学習も目的としていたため、コンポーネントやUIはライブラリを使用しAPIとの通信や全体の構成を学習の工数として使用した。
+
 詳細は下記をご覧ください
 
 <img src="https://github.com/user-attachments/assets/130559ff-1231-4297-8af3-65e8eedbe6de">[勤怠管理アプリを作る 技術選定編](https://qiita.com/TechYoichiro/items/00fdf080a0832baf5dea?utm_campaign=post_article&utm_medium=twitter&utm_source=twitter_share)
