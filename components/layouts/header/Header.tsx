@@ -54,7 +54,7 @@ export default function Header() {
                   勤怠記録
                 </Link>
                 <Link
-                  href="#"
+                  href="/setting"
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
                   prefetch={false}
                 >
