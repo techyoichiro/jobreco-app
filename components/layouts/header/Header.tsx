@@ -19,7 +19,7 @@ export default function Header() {
           <Link href="#" className="text-muted-foreground hover:text-foreground" prefetch={false}>
             勤怠記録
           </Link>
-          <Link href="#" className="text-muted-foreground hover:text-foreground" prefetch={false}>
+          <Link href="/setting" className="text-muted-foreground hover:text-foreground" prefetch={false}>
             設定
           </Link>
         </nav>
