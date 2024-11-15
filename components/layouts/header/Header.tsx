@@ -38,7 +38,7 @@ export default function Header() {
               </Link>
               <nav className="grid gap-4">
                 <Link
-                  href="#"
+                  href="/"
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
                   prefetch={false}
                 >
@@ -46,7 +46,7 @@ export default function Header() {
                   打刻
                 </Link>
                 <Link
-                  href="#"
+                  href="/"
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
                   prefetch={false}
                 >
