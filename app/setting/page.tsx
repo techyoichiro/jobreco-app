@@ -28,6 +28,7 @@ const ChangePassword: React.FC = () => {
       const response = await axios.post(
         `${API_URL}/auth/change-password`,
         {
+          employee_id: parseInt(localStorage.getItem('empID') || "0", 10),
           current_password: currentPassword,
           new_password: newPassword,
         },
