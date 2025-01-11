@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { API_URL } from '@/const/const';
 
 const statusMap: Record<number, string> = {
   0: '未出勤',
@@ -68,7 +69,7 @@ const AttendanceScreen: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.post(`https://jobreco-api-njgi6c7muq-an.a.run.app/attendance/${Stamp}`, {
+      const response = await axios.post(`${API_URL}/attendance/${Stamp}`, {
         employee_id: parseInt(localStorage.getItem('empID') || "0", 10),
         store_id: storeID,
       });
@@ -88,7 +89,7 @@ const AttendanceScreen: React.FC = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get('https://jobreco-api-njgi6c7muq-an.a.run.app/summary/init');
+      const response = await axios.get('${API_URL}/summary/init');
       if (response.status === 200) {
         const employees = response.data;
         localStorage.setItem('employees', JSON.stringify(employees));

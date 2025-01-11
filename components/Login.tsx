@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { API_URL } from '@/const/const';
 
 interface Employee {
   id: number;
@@ -25,7 +26,7 @@ export const Login: React.FC = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await axios.get('https://jobreco-api-njgi6c7muq-an.a.run.app/summary/init');
+        const response = await axios.get(`${API_URL}/summary/init`);
         if (response.status === 200) {
           setEmployees(response.data);
         }
@@ -46,7 +47,7 @@ export const Login: React.FC = () => {
     }
 
     try {
-      const response = await axios.post('https://jobreco-api-njgi6c7muq-an.a.run.app/auth/login', {
+      const response = await axios.post(`${API_URL}/auth/login`, {
         id: selectedEmployeeID,
         password: password
       }, {

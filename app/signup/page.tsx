@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { API_URL } from '@/const/const';
 
 const SignUp: React.FC = () => {
   const [name, setName] = useState('');
@@ -25,7 +26,7 @@ const SignUp: React.FC = () => {
     }
   
     try {
-      const response = await axios.post('https://jobreco-api-njgi6c7muq-an.a.run.app/auth/signup',{
+      const response = await axios.post(`${API_URL}/auth/signup`,{
           name: name,
           login_id: email,
           password: password

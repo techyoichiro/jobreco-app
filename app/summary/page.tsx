@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { API_URL } from '@/const/const';
 
 interface AttendanceRecord {
   ID: number;
@@ -40,7 +41,7 @@ const AttendanceRecordList: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/${selectedEmployee}/${selectedYear}/${selectedMonth}`);
+      const response = await fetch(`${API_URL}/summary/${selectedEmployee}/${selectedYear}/${selectedMonth}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -112,7 +113,7 @@ const AttendanceRecordList: React.FC = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch('https://jobreco-api-njgi6c7muq-an.a.run.app/summary/init');
+      const response = await fetch(`${API_URL}/summary/init`);
       const data = await response.json();
       const formattedEmployees = data.map((employee: { id: number, name: string }) => ({
         value: employee.id.toString(),
@@ -132,7 +133,7 @@ const AttendanceRecordList: React.FC = () => {
 
   const handleDateClick = async (attendanceID: number) => {
     try {
-      const response = await fetch(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${attendanceID}`);
+      const response = await fetch(`${API_URL}/summary/edit/${attendanceID}`);
       if (!response.ok) {
         throw new Error('勤怠記録の取得に失敗しました');
       }

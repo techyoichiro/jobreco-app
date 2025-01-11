@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { API_URL } from '@/const/const';
 
 interface AttendanceRecord {
   ID: number;
@@ -45,7 +46,7 @@ const EditRecords: React.FC = () => {
       }
 
       try {
-        const response = await axios.get(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${attendanceID}`);
+        const response = await axios.get(`${API_URL}/summary/edit/${attendanceID}`);
         setRecord(response.data.attendance);
       } catch (error) {
         console.error('Fetch error:', error);
@@ -68,7 +69,7 @@ const EditRecords: React.FC = () => {
     }
 
     try {
-      await axios.post(`https://jobreco-api-njgi6c7muq-an.a.run.app/summary/edit/${record.ID}`, record, {
+      await axios.post(`${API_URL}/summary/edit/${record.ID}`, record, {
         headers: {
           'Content-Type': 'application/json',
         },
