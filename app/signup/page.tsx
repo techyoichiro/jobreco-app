@@ -19,14 +19,23 @@ const SignUp: React.FC = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
+    // trim() で前後の空白を除去し、から文字列でないか確認
+    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+      alert('すべてのフィールドを入力してください。');
+      return;
+    }
+
+    // パスワード一致チェック
     if (password !== confirmPassword) {
       alert('パスワードが一致していません');
       return;
     }
-  
+
     try {
-      const response = await axios.post(`${API_URL}/auth/signup`,{
+      const response = await axios.post(
+        `${API_URL}/auth/signup`,
+        {
           name: name,
           login_id: email,
           password: password
@@ -38,7 +47,7 @@ const SignUp: React.FC = () => {
           withCredentials: true
         }
       );
-  
+
       if (response.status === 200) {
         router.push('/');
       } else {
