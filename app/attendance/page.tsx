@@ -70,7 +70,7 @@ const AttendanceScreen: React.FC = () => {
     }
     try {
       const response = await axios.post(`${API_URL}/attendance/${Stamp}`, {
-        employee_id: localStorage.getItem('empID') || "0",
+        employee_id: parseInt(localStorage.getItem('empID') || "0", 10),
         store_id: storeID,
       });
 
