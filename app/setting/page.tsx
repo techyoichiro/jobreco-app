@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { API_URL } from '@/const/const';
+import { ArrowLeft } from 'lucide-react';
 
 const storeMap: Record<number, string> = {
   1: '我家',
@@ -91,6 +92,10 @@ const AccountSettings: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-[350px]">
         <CardHeader>
+          <ArrowLeft
+            className="w-6 h-6 text-gray-600 cursor-pointer"
+            onClick={() => router.back()}
+          />
           <CardTitle>アカウント設定</CardTitle>
         </CardHeader>
         <CardContent>
