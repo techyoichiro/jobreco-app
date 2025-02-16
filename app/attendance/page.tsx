@@ -92,6 +92,7 @@ const AttendanceScreen: React.FC = () => {
         const { data } = response;
         setStatusID(data.statusID);
         localStorage.setItem('statusID', data.statusID.toString());
+        alert('打刻成功！');
         router.push('/');
       }
     } catch (error) {
