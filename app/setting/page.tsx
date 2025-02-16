@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -10,6 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { API_URL } from '@/const/const';
 import { ArrowLeft } from 'lucide-react';
+
+interface Employee {
+  id: string;
+  name: string;
+  hourlyPay: string;
+  competentID: string;
+}
 
 const storeMap: Record<number, string> = {
   1: '我家',
@@ -21,10 +28,14 @@ const AccountSettings: React.FC = () => {
   const [roleID, setRoleID] = useState(0);
   const [hourlyPay, setHourlyPay] = useState('');
   const [hourlyPayError, setHourlyPayError] = useState('');
-  // competentID は文字列として管理。localStorage から取得した値がそのままセットされる
   const [competentID, setCompetentID] = useState('');
+  // 従業員一覧（roleIDが2の場合に利用）
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  // roleIDが2の場合、選択された従業員のID
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const router = useRouter();
 
+  // 初回ロード時、localStorageから値を読み込む
   useEffect(() => {
     const storedUserName = localStorage.getItem('userName') || '';
     const storedRoleID = localStorage.getItem('roleID') || '0';
@@ -35,8 +46,50 @@ const AccountSettings: React.FC = () => {
     setRoleID(parseInt(storedRoleID, 10));
     setHourlyPay(storedHourlyPay);
     setCompetentID(storedCompetentID);
+
+    // roleIDが2の場合は、従業員一覧を取得して初期選択を設定
+    if (parseInt(storedRoleID, 10) === 2) {
+      fetchEmployees();
+    }
   }, []);
 
+  // 従業員一覧取得
+  const fetchEmployees = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/summary/init`);
+      const fetchedEmployees: Employee[] = response.data.map((emp: any) => ({
+        id: emp.id.toString(),
+        name: emp.name,
+        hourlyPay: emp.hourlyPay.toString(),
+        // JSON のキーは "competent_store_id" なので変換
+        competentID: emp.competent_store_id.toString(),
+      }));
+      setEmployees(fetchedEmployees);
+      // 初期選択として、最初の従業員があればその情報を反映
+      if (fetchedEmployees.length > 0) {
+        const initialEmp = fetchedEmployees[0];
+        setSelectedEmployeeId(initialEmp.id);
+        setUserName(initialEmp.name);
+        setHourlyPay(initialEmp.hourlyPay);
+        setCompetentID(initialEmp.competentID);
+      }
+    } catch (error) {
+      console.error('従業員情報の取得に失敗しました:', error);
+    }
+  };
+
+  // 従業員セレクトボックスの選択変更時の処理
+  const handleEmployeeChange = (value: string) => {
+    setSelectedEmployeeId(value);
+    const selected = employees.find((emp) => emp.id === value);
+    if (selected) {
+      setUserName(selected.name);
+      setHourlyPay(selected.hourlyPay);
+      setCompetentID(selected.competentID);
+    }
+  };
+
+  // アカウント更新処理
   const handleUpdateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -52,7 +105,8 @@ const AccountSettings: React.FC = () => {
       const response = await axios.post(
         `${API_URL}/auth/update`,
         {
-          employee_id: localStorage.getItem('empID'),
+          // roleIDが2なら選択された従業員IDを送信、そうでなければlocalStorageのempID
+          employee_id: roleID === 2 ? selectedEmployeeId : localStorage.getItem('empID'),
           user_name: userName,
           hourly_pay: hourlyPay,
           competent_id: competentID,
@@ -67,9 +121,7 @@ const AccountSettings: React.FC = () => {
 
       if (response.status === 200) {
         alert('アカウントが正常に更新されました');
-        localStorage.setItem('userName', userName);
-        localStorage.setItem('hourlyPay', hourlyPay);
-        localStorage.setItem('competentID', competentID);
+        router.push('/attendance');
       } else {
         alert('アカウント更新に失敗しました: ' + response.data.error);
       }
@@ -92,23 +144,39 @@ const AccountSettings: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-[350px]">
         <CardHeader>
-          <ArrowLeft
-            className="w-6 h-6 text-gray-600 cursor-pointer"
-            onClick={() => router.back()}
-          />
+          <ArrowLeft className="w-6 h-6 text-gray-600 cursor-pointer" onClick={() => router.back()} />
           <CardTitle>アカウント設定</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleUpdateAccount}>
-            {/* 名前 */}
+            {/* 名前（roleIDが2の場合は従業員一覧のセレクトボックス、それ以外は入力フィールド） */}
             <div>
               <Label htmlFor="userName">名前</Label>
-              <Input
-                id="userName"
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-              />
+              {roleID === 2 ? (
+                <Select value={selectedEmployeeId} onValueChange={handleEmployeeChange}>
+                  <SelectTrigger id="userName" className="w-full">
+                    <SelectValue>
+                      {selectedEmployeeId
+                        ? employees.find((emp) => emp.id === selectedEmployeeId)?.name
+                        : '従業員を選択'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {employees.map((emp) => (
+                      <SelectItem key={emp.id} value={emp.id}>
+                        {emp.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id="userName"
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                />
+              )}
             </div>
             {/* 時給 */}
             <div>
@@ -121,9 +189,7 @@ const AccountSettings: React.FC = () => {
                     value={hourlyPay}
                     onChange={(e) => setHourlyPay(e.target.value)}
                   />
-                  {hourlyPayError && (
-                    <div className="text-red-500 text-sm mt-1">{hourlyPayError}</div>
-                  )}
+                  {hourlyPayError && <div className="text-red-500 text-sm mt-1">{hourlyPayError}</div>}
                 </>
               ) : (
                 <div className="p-2 border rounded">{hourlyPay}</div>
