@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { API_URL } from '@/const/const';
 import { useRouter } from 'next/navigation';
 
@@ -32,48 +32,52 @@ const stampMap: Record<string, string> = {
 
 const AttendanceScreen: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  // 勤務場所は文字列型で保持（localStorage から取得した店舗IDも文字列）
   const [location, setLocation] = useState('1');
   const [userName, setUserName] = useState<string | null>(null);
   const [statusID, setStatusID] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [storedCompetentID, setCompetentID] = useState<number>(0);
+  const router = useRouter();
 
   useEffect(() => {
+    // 時刻更新のためのタイマー
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-  
-    const userName = localStorage.getItem('userName');
+
+    // localStorage から値を取得
+    const userNameLS = localStorage.getItem('userName');
     const storedStatusID = localStorage.getItem('statusID');
     const storedCompetentID = localStorage.getItem('competentID');
-  
-    setUserName(userName);
-  
+
+    setUserName(userNameLS);
+
     if (storedStatusID) {
-      const id = parseInt(storedStatusID, 10);
-      setStatusID(id);
+      setStatusID(parseInt(storedStatusID, 10));
     }
     if (storedCompetentID) {
-      // location も更新する
+      // 取得した店舗IDを location state にセット
       setLocation(storedCompetentID);
-      const id = parseInt(storedCompetentID, 10);
-      setCompetentID(id);
     }
-  
+
     return () => clearInterval(timer);
   }, []);
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    return date.toLocaleTimeString('ja-JP', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
   };
 
   const handleStatusChange = async (Stamp: string) => {
     setErrorMessage(null);
     const storeID = parseInt(location, 10);
-    const storeName = storeMap[storeID]; // 店舗名を取得
-    const stampValue = stampMap[Stamp]
+    const storeName = storeMap[storeID];
+    const stampValue = stampMap[Stamp];
     const isConfirmed = window.confirm(`${storeName}${stampValue}`);
-    const router = useRouter();
 
     if (!isConfirmed) {
       return;
@@ -88,7 +92,7 @@ const AttendanceScreen: React.FC = () => {
         const { data } = response;
         setStatusID(data.statusID);
         localStorage.setItem('statusID', data.statusID.toString());
-        router.push('/'); 
+        router.push('/');
       }
     } catch (error) {
       console.error('Error updating status:', error);
@@ -100,7 +104,7 @@ const AttendanceScreen: React.FC = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get('${API_URL}/summary/init');
+      const response = await axios.get(`${API_URL}/summary/init`);
       if (response.status === 200) {
         const employees = response.data;
         localStorage.setItem('employees', JSON.stringify(employees));
@@ -135,7 +139,7 @@ const AttendanceScreen: React.FC = () => {
               <Label htmlFor="location" className="text-white">勤務場所</Label>
               <Select value={location} onValueChange={setLocation}>
                 <SelectTrigger id="location" className="bg-white text-gray-700">
-                  <SelectValue placeholder="選択してください" />
+                  <SelectValue>{storeMap[Number(location)] || "選択してください"}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(storeMap).map(([key, value]) => (
