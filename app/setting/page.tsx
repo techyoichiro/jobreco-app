@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -29,9 +29,7 @@ const AccountSettings: React.FC = () => {
   const [hourlyPay, setHourlyPay] = useState('');
   const [hourlyPayError, setHourlyPayError] = useState('');
   const [competentID, setCompetentID] = useState('');
-  // 従業員一覧（roleIDが2の場合に利用）
   const [employees, setEmployees] = useState<Employee[]>([]);
-  // roleIDが2の場合、選択された従業員のID
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const router = useRouter();
 
@@ -61,7 +59,6 @@ const AccountSettings: React.FC = () => {
         id: emp.id.toString(),
         name: emp.name,
         hourlyPay: emp.hourlyPay.toString(),
-        // JSON のキーは "competent_store_id" なので変換
         competentID: emp.competent_store_id.toString(),
       }));
       setEmployees(fetchedEmployees);
