@@ -11,6 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { API_URL } from '@/const/const';
 import { ArrowLeft } from 'lucide-react';
 
+// API レスポンス用の型定義
+interface EmployeeResponse {
+  id: number;
+  name: string;
+  hourlyPay: number;
+  competent_store_id: number;
+}
+
 interface Employee {
   id: string;
   name: string;
@@ -24,16 +32,18 @@ const storeMap: Record<number, string> = {
 };
 
 const AccountSettings: React.FC = () => {
+  // 各フィールドの state
   const [userName, setUserName] = useState('');
   const [roleID, setRoleID] = useState(0);
   const [hourlyPay, setHourlyPay] = useState('');
   const [hourlyPayError, setHourlyPayError] = useState('');
   const [competentID, setCompetentID] = useState('');
+  // 管理者向け: 従業員一覧と選択された従業員の ID
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const router = useRouter();
 
-  // 初回ロード時、localStorageから値を読み込む
+  // 初回ロード時に localStorage から値を読み込み、roleID が 2 なら従業員一覧を取得
   useEffect(() => {
     const storedUserName = localStorage.getItem('userName') || '';
     const storedRoleID = localStorage.getItem('roleID') || '0';
@@ -45,24 +55,24 @@ const AccountSettings: React.FC = () => {
     setHourlyPay(storedHourlyPay);
     setCompetentID(storedCompetentID);
 
-    // roleIDが2の場合は、従業員一覧を取得して初期選択を設定
     if (parseInt(storedRoleID, 10) === 2) {
       fetchEmployees();
     }
   }, []);
 
-  // 従業員一覧取得
+  // 従業員一覧を API から取得する
   const fetchEmployees = async () => {
     try {
       const response = await axios.get(`${API_URL}/summary/init`);
-      const fetchedEmployees: Employee[] = response.data.map((emp: any) => ({
+      const fetchedEmployees: Employee[] = (response.data as EmployeeResponse[]).map((emp) => ({
         id: emp.id.toString(),
         name: emp.name,
         hourlyPay: emp.hourlyPay.toString(),
+        // API のキー "competent_store_id" を "competentID" に変換
         competentID: emp.competent_store_id.toString(),
       }));
       setEmployees(fetchedEmployees);
-      // 初期選択として、最初の従業員があればその情報を反映
+      // 初期選択: 最初の従業員があればその情報を反映
       if (fetchedEmployees.length > 0) {
         const initialEmp = fetchedEmployees[0];
         setSelectedEmployeeId(initialEmp.id);
@@ -102,22 +112,26 @@ const AccountSettings: React.FC = () => {
       const response = await axios.post(
         `${API_URL}/auth/update`,
         {
-          // roleIDが2なら選択された従業員IDを送信、そうでなければlocalStorageのempID
+          // roleIDが2の場合は選択された従業員IDを送信、そうでなければ localStorage の empID を利用
           employee_id: roleID === 2 ? selectedEmployeeId : localStorage.getItem('empID'),
           user_name: userName,
           hourly_pay: hourlyPay,
           competent_id: competentID,
         },
         {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           withCredentials: true,
         }
       );
 
       if (response.status === 200) {
         alert('アカウントが正常に更新されました');
+        localStorage.setItem('userName', userName);
+        localStorage.setItem('hourlyPay', hourlyPay);
+        localStorage.setItem('competentID', competentID);
+        if (roleID === 2) {
+          localStorage.setItem('empID', selectedEmployeeId);
+        }
         router.push('/attendance');
       } else {
         alert('アカウント更新に失敗しました: ' + response.data.error);
@@ -146,7 +160,7 @@ const AccountSettings: React.FC = () => {
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleUpdateAccount}>
-            {/* 名前（roleIDが2の場合は従業員一覧のセレクトボックス、それ以外は入力フィールド） */}
+            {/* 名前: 管理者の場合は従業員一覧のセレクトボックス、その他の場合は入力フィールド */}
             <div>
               <Label htmlFor="userName">名前</Label>
               {roleID === 2 ? (
