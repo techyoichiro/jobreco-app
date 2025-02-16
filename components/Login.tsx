@@ -62,6 +62,8 @@ export const Login: React.FC = () => {
         localStorage.setItem('userName', response.data.employee.Name);
         localStorage.setItem('statusID', response.data.status_id.toString());
         localStorage.setItem('roleID', response.data.employee.RoleID.toString());
+        localStorage.setItem('hourlyPay', response.data.employee.HourlyPay.toString());
+        localStorage.setItem('competentID', response.data.employee.CompetentID.toString());
         router.push('/attendance');
       } else {
         setError('ログインに失敗しました。入力情報を確認してください。');

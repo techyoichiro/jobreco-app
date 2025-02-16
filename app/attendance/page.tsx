@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { API_URL } from '@/const/const';
+import { useRouter } from 'next/navigation';
 
 const statusMap: Record<number, string> = {
   0: '未出勤',
@@ -35,22 +36,30 @@ const AttendanceScreen: React.FC = () => {
   const [userName, setUserName] = useState<string | null>(null);
   const [statusID, setStatusID] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [storedCompetentID, setCompetentID] = useState<number>(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
+  
     const userName = localStorage.getItem('userName');
     const storedStatusID = localStorage.getItem('statusID');
-
+    const storedCompetentID = localStorage.getItem('competentID');
+  
     setUserName(userName);
-
+  
     if (storedStatusID) {
       const id = parseInt(storedStatusID, 10);
       setStatusID(id);
     }
-
+    if (storedCompetentID) {
+      // location も更新する
+      setLocation(storedCompetentID);
+      const id = parseInt(storedCompetentID, 10);
+      setCompetentID(id);
+    }
+  
     return () => clearInterval(timer);
   }, []);
 
@@ -64,6 +73,7 @@ const AttendanceScreen: React.FC = () => {
     const storeName = storeMap[storeID]; // 店舗名を取得
     const stampValue = stampMap[Stamp]
     const isConfirmed = window.confirm(`${storeName}${stampValue}`);
+    const router = useRouter();
 
     if (!isConfirmed) {
       return;
@@ -78,6 +88,7 @@ const AttendanceScreen: React.FC = () => {
         const { data } = response;
         setStatusID(data.statusID);
         localStorage.setItem('statusID', data.statusID.toString());
+        router.push('/'); 
       }
     } catch (error) {
       console.error('Error updating status:', error);
