@@ -214,7 +214,7 @@ const AttendanceRecordList: React.FC = () => {
                 <SelectValue placeholder="年を選択" />
               </SelectTrigger>
               <SelectContent>
-                {['2023', '2024', '2025'].map((year) => (
+                {['2024', '2025', '2026', '2027'].map((year) => (
                   <SelectItem key={year} value={year}> {year}年 </SelectItem>))}
               </SelectContent>
             </Select>
